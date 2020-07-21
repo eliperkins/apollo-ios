@@ -61,7 +61,9 @@ public final class GraphQLQueryWatcher<Query: GraphQLQuery>: Cancellable, Apollo
     client?.store.unsubscribe(self)
   }
 
-  func store(_ store: ApolloStore,
+  // MARK: - ApolloStoreSubscriber
+
+  public func store(_ store: ApolloStore,
              didChangeKeys changedKeys: Set<CacheKey>,
              context: UnsafeMutableRawPointer?) {
     if context == &self.context { return }

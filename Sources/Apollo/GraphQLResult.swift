@@ -13,7 +13,7 @@ public struct GraphQLResult<Data> {
   /// Source of data
   public let source: Source
 
-  let dependentKeys: Set<CacheKey>?
+  public let dependentKeys: Set<CacheKey>?
 
   public init(data: Data?,
               errors: [GraphQLError]?,
