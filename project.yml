@@ -1,0 +1,153 @@
+name: Apollo
+targetTemplates:
+  UniversalFramework:
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    type: framework
+    configFiles:
+      Debug: Configuration/Shared/Workspace-Universal-Framework.xcconfig
+      Release: Configuration/Shared/Workspace-Universal-Framework.xcconfig
+  UsesTestProvider:
+    scheme:
+      test:
+        environmentVariables:
+          APOLLO_TEST_CACHE_PROVIDER: ApolloTestSupport.InMemoryTestCacheProvider
+  DemoAPI:
+    dependencies:
+      - target: Apollo
+targets:
+  Apollo:
+    templates:
+      - UniversalFramework
+      - UsesTestProvider
+    sources: Sources/Apollo
+    dependencies:
+      - target: ApolloCore
+    scheme:
+      testTargets:
+        - ApolloTests
+        - name: ApolloCacheDependentTests
+          skippedTests:
+            - SQLiteFetchQueryTests
+            - SQLiteLoadQueryFromStoreTests
+            - SQLiteReadWriteFromStoreTests
+            - SQLiteStarWarsServerAPQsGetMethodTests
+            - SQLiteStarWarsServerAPQsTests
+            - SQLiteStarWarsServerCachingRoundtripTests
+            - SQLiteStarWarsServerTests
+            - SQLiteWatchQueryTests
+      test:
+        gatherCoverageData: true
+        coverageTargets:
+          - Apollo
+  ApolloCodegenLib:
+    templates:
+      - UniversalFramework
+    sources: Sources/ApolloCodegenLib
+    dependencies:
+      - package: Stencil
+      - target: ApolloCore
+    scheme: {}
+  ApolloCore:
+    templates:
+      - UniversalFramework
+    sources: Sources/ApolloCore
+    scheme: {}
+  ApolloSQLite:
+    templates:
+      - UniversalFramework
+      - UsesTestProvider
+    sources: Sources/ApolloSQLite
+    dependencies:
+      - package: SQLite
+      - target: Apollo
+  ApolloWebSocket:
+    templates:
+      - UniversalFramework
+      - UsesTestProvider
+    sources: Sources/ApolloWebSocket
+    dependencies:
+      - package: Starscream
+      - target: Apollo
+    schemes:
+      testTargets:
+        - ApolloWebSocketTests
+      test:
+        shouldUseLaunchSchemeArgsEnv: true
+        gatherCoverageData: true
+        coverageTargets:
+          - ApolloWebSocket
+        targets:
+          - ApolloWebSocketTests
+
+  # Demo API targets
+  GitHubAPI:
+    templates:
+      - UniversalFramework
+      - DemoAPI
+    sources: Sources/GitHubAPI
+  StarWarsAPI:
+    templates:
+      - UniversalFramework
+      - DemoAPI
+    sources: Sources/StarWarsAPI
+  UploadAPI:
+    templates:
+      - UniversalFramework
+      - DemoAPI
+    sources: Sources/UploadAPI
+
+  # Test support targets
+  ApolloSQLiteTestSupport:
+    templates:
+      - UniversalFramework
+    sources: Sources/ApolloSQLiteTestSupport
+    dependencies:
+      - target: Apollo
+      - target: ApolloTestSupport
+      - target: ApolloSQLite
+  ApolloTestSupport:
+    templates:
+      - UniversalFramework
+    sources: Sources/ApolloTestSupport
+    dependencies:
+      - target: Apollo
+      - target: ApolloCore
+
+  # Test targets
+  ApolloCacheDependentTests:
+    type: bundle.unit-test
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    sources: Tests/ApolloCacheDependentTests
+  ApolloCodegenTests:
+    type: bundle.unit-test
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    sources: Tests/ApolloCodegenTests
+  ApolloSQLiteTests:
+    type: bundle.unit-test
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    sources: Tests/ApolloSQLiteTests
+  ApolloTests:
+    type: bundle.unit-test
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    sources: Tests/ApolloTests
+  ApolloWebSocketTests:
+    type: bundle.unit-test
+    platform: [watchOS, tvOS, macOS, iOS]
+    platformSuffix: ''
+    sources: Tests/ApolloWebsocketTests
+
+packages:
+  SQLite:
+    url: https://github.com/stephencelis/SQLite.swift.git
+    from: 0.12.2
+  Starscream:
+    url: https://github.com/daltoniam/Starscream.git
+    from: 3.1.1
+  Stencil:
+    url: https://github.com/stencilproject/Stencil.git
+    from: 0.14.0
